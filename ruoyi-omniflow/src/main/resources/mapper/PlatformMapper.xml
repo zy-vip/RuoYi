@@ -84,4 +84,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
+    <select id="selectPlatformByCode" parameterType="String" resultMap="PlatformResult">
+        <include refid="selectPlatformVo"/>
+        where code = #{code}
+    </select>
 </mapper>
