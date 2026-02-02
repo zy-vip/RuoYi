@@ -14,16 +14,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"  column="create_time" />
         <result property="updateBy"    column="update_by"   />
         <result property="updateTime"  column="update_time" />
+        <result property="deleted"     column="deleted"     />
+        <result property="remark"      column="remark"      />
     </resultMap>
 
     <sql id="selectPlatformVo">
-        select id, name, code, api_config, status, create_by, create_time, update_by, update_time
+        select id, name, code, api_config, status, create_by, create_time, update_by, update_time, deleted, remark
         from omni_platform
+    </sql>
+
+    <!-- 逻辑删除过滤条件 -->
+    <sql id="deleteCondition">
+        and deleted = 0
     </sql>
 
     <select id="selectPlatformList" parameterType="com.ruoyi.omniflow.domain.Platform" resultMap="PlatformResult">
         <include refid="selectPlatformVo"/>
         <where>
+            <include refid="deleteCondition"/>
             <if test="name != null and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="code != null and code != ''"> and code = #{code}</if>
             <if test="status != null and status != ''"> and status = #{status}</if>
@@ -33,6 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectPlatformById" parameterType="Long" resultMap="PlatformResult">
         <include refid="selectPlatformVo"/>
         where id = #{id}
+        <include refid="deleteCondition"/>
     </select>
 
     <insert id="insertPlatform" parameterType="com.ruoyi.omniflow.domain.Platform" useGeneratedKeys="true" keyProperty="id">
@@ -46,6 +55,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null and updateBy != ''">update_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateTime != null">update_time,</if>
+            deleted,
+            <if test="remark != null">remark,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">#{name},</if>
@@ -56,6 +67,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null and updateBy != ''">#{updateBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
+            0,
+            <if test="remark != null">#{remark},</if>
          </trim>
     </insert>
 
@@ -70,23 +83,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
         </trim>
         where id = #{id}
+        <include refid="deleteCondition"/>
     </update>
 
-    <delete id="deletePlatformById" parameterType="Long">
-        delete from omni_platform where id = #{id}
-    </delete>
+    <!-- 逻辑删除：更新deleted字段 -->
+    <update id="deletePlatformById" parameterType="Long">
+        update omni_platform set deleted = 1 where id = #{id} and deleted = 0
+    </update>
 
-    <delete id="deletePlatformByIds" parameterType="String">
-        delete from omni_platform where id in
+    <update id="deletePlatformByIds" parameterType="Long">
+        update omni_platform set deleted = 1 where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
-    </delete>
+        and deleted = 0
+    </update>
 
     <select id="selectPlatformByCode" parameterType="String" resultMap="PlatformResult">
         <include refid="selectPlatformVo"/>
         where code = #{code}
+        <include refid="deleteCondition"/>
     </select>
 </mapper>

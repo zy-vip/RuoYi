@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.omniflow.domain.Platform;
@@ -51,6 +52,7 @@ public class PlatformServiceImpl implements IPlatformService {
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertPlatform(Platform platform) {
         return platformMapper.insertPlatform(platform);
     }
@@ -62,28 +64,31 @@ public class PlatformServiceImpl implements IPlatformService {
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updatePlatform(Platform platform) {
         return platformMapper.updatePlatform(platform);
     }
 
     /**
-     * 批量删除外卖平台配置
+     * 批量删除外卖平台配置（逻辑删除）
      *
      * @param ids 需要删除的外卖平台配置主键
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deletePlatformByIds(Long[] ids) {
         return platformMapper.deletePlatformByIds(ids);
     }
 
     /**
-     * 删除外卖平台配置信息
+     * 删除外卖平台配置信息（逻辑删除）
      *
      * @param id 外卖平台配置主键
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deletePlatformById(Long id) {
         return platformMapper.deletePlatformById(id);
     }

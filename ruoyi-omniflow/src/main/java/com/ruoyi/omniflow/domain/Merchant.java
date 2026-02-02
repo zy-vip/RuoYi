@@ -41,6 +41,10 @@ public class Merchant extends BaseEntity {
     @Excel(name = "状态", readConverterExp = "0=停用,1=正常")
     private String status;
 
+    /** 删除标志（0-未删除 1-已删除） */
+    @Excel(name = "删除标志", readConverterExp = "0=未删除,1=已删除")
+    private String deleted;
+
     public Long getId() {
         return id;
     }
@@ -89,6 +93,14 @@ public class Merchant extends BaseEntity {
         this.status = status;
     }
 
+    public String getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(String deleted) {
+        this.deleted = deleted;
+    }
+
     @Override
     public String toString() {
         return "Merchant{" +
@@ -98,6 +110,7 @@ public class Merchant extends BaseEntity {
                 ", address='" + address + '\'' +
                 ", platformIds='" + platformIds + '\'' +
                 ", status='" + status + '\'' +
+                ", deleted='" + deleted + '\'' +
                 '}';
     }
 }

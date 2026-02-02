@@ -3,6 +3,8 @@ package com.ruoyi.omniflow.domain;
 import javax.validation.constraints.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.annotation.Excel.ColumnType;
 import com.ruoyi.common.core.domain.BaseEntity;
@@ -37,6 +39,10 @@ public class Platform extends BaseEntity {
     /** 状态（0-停用 1-正常） */
     @Excel(name = "状态", readConverterExp = "0=停用,1=正常")
     private String status;
+
+    /** 删除标志（0-未删除 1-已删除） */
+    @Excel(name = "删除标志", readConverterExp = "0=未删除,1=已删除")
+    private String deleted;
 
     public Long getId() {
         return id;
@@ -86,17 +92,27 @@ public class Platform extends BaseEntity {
         this.status = status;
     }
 
+    public String getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(String deleted) {
+        this.deleted = deleted;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("name", getName())
             .append("code", getCode())
+            .append("apiConfig", StringUtils.isNotEmpty(apiConfig) ? "***HIDDEN***" : null)
             .append("status", getStatus())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("deleted", getDeleted())
             .append("remark", getRemark())
             .toString();
     }
@@ -115,5 +131,26 @@ public class Platform extends BaseEntity {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Platform other = (Platform) obj;
+        return new EqualsBuilder()
+            .append(id, other.id)
+            .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+            .append(id)
+            .toHashCode();
     }
 }

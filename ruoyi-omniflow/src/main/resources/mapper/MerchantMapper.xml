@@ -15,16 +15,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"   />
         <result property="updateBy"     column="update_by"    />
         <result property="updateTime"    column="update_time"   />
+        <result property="deleted"      column="deleted"      />
     </resultMap>
 
+    <!-- 逻辑删除过滤条件 -->
+    <sql id="deleteCondition">
+        and deleted = 0
+    </sql>
+
     <sql id="selectMerchantVo">
-        select id, name, contact_phone, address, platform_ids, status, create_by, create_time, update_by, update_time
+        select id, name, contact_phone, address, platform_ids, status, create_by, create_time, update_by, update_time, deleted
         from omni_merchant
     </sql>
 
     <select id="selectMerchantList" parameterType="com.ruoyi.omniflow.domain.Merchant" resultMap="MerchantResult">
         <include refid="selectMerchantVo"/>
         <where>
+            <include refid="deleteCondition"/>
             <if test="name != null and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="contactPhone != null and contactPhone != ''"> and contact_phone like concat('%', #{contactPhone}, '%')</if>
             <if test="status != null and status != ''"> and status = #{status}</if>
@@ -34,6 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectMerchantById" parameterType="Long" resultMap="MerchantResult">
         <include refid="selectMerchantVo"/>
         where id = #{id}
+        <include refid="deleteCondition"/>
     </select>
 
     <insert id="insertMerchant" parameterType="com.ruoyi.omniflow.domain.Merchant" useGeneratedKeys="true" keyProperty="id">
@@ -48,7 +56,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null and updateBy != ''">update_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateTime != null">update_time,</if>
-         </trim>
+            deleted
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">#{name},</if>
             <if test="contactPhone != null and contactPhone != ''">#{contactPhone},</if>
@@ -59,7 +68,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null and updateBy != ''">#{updateBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
-         </trim>
+            0
+        </trim>
     </insert>
 
     <update id="updateMerchant" parameterType="com.ruoyi.omniflow.domain.Merchant">
@@ -76,16 +86,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">update_time = #{updateTime},</if>
         </trim>
         where id = #{id}
+        <include refid="deleteCondition"/>
     </update>
 
-    <delete id="deleteMerchantById" parameterType="Long">
-        delete from omni_merchant where id = #{id}
-    </delete>
+    <!-- 逻辑删除：更新deleted字段 -->
+    <update id="deleteMerchantById" parameterType="Long">
+        update omni_merchant set deleted = 1 where id = #{id} and deleted = 0
+    </update>
 
-    <delete id="deleteMerchantByIds" parameterType="String">
-        delete from omni_merchant where id in
+    <update id="deleteMerchantByIds" parameterType="Long">
+        update omni_merchant set deleted = 1 where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
-    </delete>
+        and deleted = 0
+    </update>
 </mapper>
